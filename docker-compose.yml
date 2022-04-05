@@ -1,0 +1,33 @@
+services:
+  auth:
+    build:
+      context: ./auth
+      dockerfile: Dockerfile
+    ports:
+      - published: ${APP_PORT:-3000}
+        target: 3000
+    #    volumes:
+    environment:
+      JWT_SECRET: ${JWT_SECRET}
+
+  mongo:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+
+  movies:
+    build:
+      context: ./movies
+      dockerfile: Dockerfile
+    ports:
+      - published: 5000
+        target: 5000
+    environment:
+      JWT_SECRET: ${JWT_SECRET}
+      MOVIE_API_KEY: ${MOVIE_API_KEY}
+      BASIC_USER_LIMIT: ${BASIC_USER_LIMIT}
+      MONGO_URI: ${MONGO_URI}
+    depends_on:
+      - mongo
