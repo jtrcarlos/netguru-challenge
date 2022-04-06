@@ -19,6 +19,10 @@ To stop the services
 In order to run the application some environment variables need to be set.
 An example .env file as been provided.
 
+# Auth Service
+
+As provided for the task.
+
 # Movie Service
 
 API documentation can be consulted in the running movie service, on port `5000/api`
