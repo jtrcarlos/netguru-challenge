@@ -42,7 +42,6 @@ export class MoviesService {
             const userExists = await this.userLimitModel.findOne({
                 userId: userData.userId
             });
-            console.log(userExists);
 
             if (!userExists) {
                 user = await new this.userLimitModel(
@@ -58,7 +57,6 @@ export class MoviesService {
                 user = await this.userLimitModel.findOneAndUpdate({
                     userId: user.userId
                 }, {$set: {limit: 5, limitDate: new Date()}}).exec();
-                console.log(user)
             }
 
             // Check if limit ok
