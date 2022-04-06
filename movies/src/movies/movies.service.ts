@@ -4,7 +4,7 @@ import {firstValueFrom} from "rxjs";
 import {InjectModel} from "@nestjs/mongoose";
 import {Model} from "mongoose"
 import {Movie, MovieDocument} from "./movie.schema";
-import {MovieCreateDto} from "./movieCreate.dto";
+import {MovieCreateDto} from "./dto/movieCreate.dto";
 import {UserModel} from "../user/user.model";
 import {UserLimit, UserLimitDocument} from "../user/userLimit.shema";
 
@@ -17,7 +17,7 @@ export class MoviesService {
     }
 
     async addMovie(userData: UserModel, movieTitle: string): Promise<Movie> {
-        const apiKey = '68527d39';
+        const apiKey = process.env.MOVIE_API_KEY;
         const foundMovieObs = this.httpService
             .get(`https://www.omdbapi.com/?t=${movieTitle}&apikey=${apiKey}`);
         const foundMovieResponse = await firstValueFrom(foundMovieObs);
@@ -28,6 +28,13 @@ export class MoviesService {
         }
 
         // TODO check if movie is already in database ??
+        // Check if movie exists in db
+        const foundMovieInDb = await this.movieModel.findOne({
+            Title:  foundMovieResponse.data.Title
+        });
+        if (foundMovieInDb) {
+            throw new HttpException("Movie already in database", HttpStatus.FORBIDDEN);
+        }
 
         // Basic user restrictions
         let user: UserLimit;
@@ -81,7 +88,7 @@ export class MoviesService {
         return movie.save();
     }
 
-    async getAllMoves(): Promise<Movie[]> {
-        return this.movieModel.find().exec();
+    async getAllMovies(): Promise<Movie[]> {
+        return await this.movieModel.find().exec();
     }
 }
