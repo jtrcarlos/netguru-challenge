@@ -1,0 +1,33 @@
+name: Movie Service CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        node-version: [14.x]
+        
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: ./movies
+    - run: docker run -d -p 27017:27017 mongo
+    - run: npm ci
+      working-directory: movies
+    - run: npm run build --if-present
+      working-directory: movies
+    - run: npm test
+      working-directory: movies
